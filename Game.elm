@@ -6,10 +6,9 @@ import Array exposing (Array)
 import Maybe exposing (Maybe)
 
 import Board exposing (renderBoard)
+import Utils exposing (Squares, hasWinner, squaresValueAt)
 
 -- MODEL
-type alias Squares = Array (Maybe String)
-
 type alias StepModel = 
   { squares : Squares
   , xIsNext : Bool
@@ -31,31 +30,10 @@ type Msg = ClickSquare Int | GoToStep Int
 update : Msg -> Model -> Model
 update msg model = 
   case msg of 
-
-    ClickSquare i ->
-      case List.head model of
-        Just stepModel ->
-          let
-            proceed = not (hasWinner winningLines stepModel.squares) && squaresValueAt i stepModel.squares == Nothing
-          in
-            if proceed then
-              { stepModel 
-              | squares = Array.set i (Just <| nextPlayer stepModel.xIsNext) stepModel.squares
-              , xIsNext = if stepModel.xIsNext then False else True
-              }
-              :: model
-            else
-              model
-        Nothing ->
-          model
-
+    ClickSquare index ->
+      onClickSquare index model
     GoToStep step ->
-      if step == 0 then
-        initialModel
-      else
-        List.drop (List.length model - step - 1) model
-
-
+      if step == 0 then initialModel else List.drop (List.length model - step - 1) model
 
 -- VIEW
 view : Model -> Html Msg
@@ -66,26 +44,59 @@ view model =
         []
         ( List.append 
             [ renderBoard squares ClickSquare
-            , div [] [text <| statusText (hasWinner winningLines squares) xIsNext]
+            , div [] [text <| getStatus squares xIsNext]
             ]
             (renderHistory (List.length model) GoToStep) 
         )
     Nothing ->
       div [] []
 
+
 -- Helpers
+
+onClickSquare : Int -> Model -> Model
+onClickSquare index model =
+  case List.head model of
+    Just stepModel ->
+      let
+        proceed = not (hasWinner winningLines stepModel.squares) && squaresValueAt index stepModel.squares == Nothing
+      in
+        if proceed then
+          { squares = Array.set index (Just <| nextPlayer stepModel.xIsNext) stepModel.squares
+          , xIsNext = if stepModel.xIsNext then False else True
+          }
+          :: model
+        else
+          model
+    Nothing ->
+      model
+
+
 
 renderHistory : Int -> (Int -> msg) -> List (Html msg)
 renderHistory steps onClickItem =
-  List.map 
-    ( \i -> 
-        let 
-          stepText = if i == 0 then "start" else "step " ++ toString i
-        in 
-          (button [ onClick (onClickItem i) ] [ text <| "Go to " ++ stepText ]) 
-    )
-    ( List.range 0 (steps-1) )
+  List.map (historyButton onClickItem) (List.range 0 (steps-1))
 
+historyButton : (Int -> msg) -> Int -> Html msg
+historyButton onClickItem step =
+  button 
+    [ onClick (onClickItem step) ] 
+    [ text <| "Go to " ++ (if step == 0 then "start" else "step " ++ toString step) ]
+
+nextPlayer : Bool -> String
+nextPlayer xIsNext = if xIsNext then "X" else "O"
+
+getStatus : Squares -> Bool -> String
+getStatus squares xIsNext =
+  case hasWinner winningLines squares of
+    True  -> 
+      "Winner: " ++ nextPlayer (not xIsNext)
+    False -> 
+      if isGameOver squares then "Game Over !!!" 
+      else "Next player: " ++ nextPlayer xIsNext
+
+isGameOver : Squares -> Bool
+isGameOver squares = Array.isEmpty <| Array.filter ((==) Nothing) squares
 
 winningLines : List (List Int)
 winningLines =
@@ -98,36 +109,3 @@ winningLines =
   , [ 0, 4, 8 ]
   , [ 2, 4, 6 ]
   ]
-
-nextPlayer : Bool -> String
-nextPlayer xIsNext = if xIsNext then "X" else "O"
-
-statusText : Bool -> Bool -> String
-statusText isWon xIsNext =
-  if isWon then
-    "Winner: " ++ nextPlayer (not xIsNext)
-  else
-    "Next player: " ++ nextPlayer xIsNext
-
-squaresValueAt : Int -> Squares -> Maybe String 
-squaresValueAt index squares = Maybe.withDefault Nothing (Array.get index squares)
-
-lineWinner : List Int -> Squares -> Maybe String
-lineWinner line squares =
-  let 
-    mappedLine = List.map (\v -> squaresValueAt v squares) line
-  in
-    if List.all (\v -> v == Just "X") mappedLine then
-      Just "X"
-    else
-      if List.all (\v -> v == Just "O") mappedLine then
-        Just "O"
-      else
-        Nothing
-
-hasWinner : List (List Int) -> Squares -> Bool
-hasWinner lines squares =
-  let
-    lineWinners = List.map (\line -> lineWinner line squares) lines    
-  in
-    List.any (\a -> a /= Nothing) lineWinners
