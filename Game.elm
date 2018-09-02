@@ -110,8 +110,7 @@ statusText isWon xIsNext =
     "Next player: " ++ nextPlayer xIsNext
 
 squaresValueAt : Int -> Squares -> Maybe String 
-squaresValueAt index squares =
-  Maybe.withDefault Nothing (Array.get index squares)
+squaresValueAt index squares = Maybe.withDefault Nothing (Array.get index squares)
 
 lineWinner : List Int -> Squares -> Maybe String
 lineWinner line squares =
