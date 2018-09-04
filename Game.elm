@@ -1,7 +1,8 @@
 module Game exposing (game)
 
-import Html exposing (Html, div, text, button, beginnerProgram)
+import Html exposing (Html, div, text, button, ul, li, beginnerProgram)
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (style)
 import Array exposing (Array)
 import Maybe exposing (Maybe)
 
@@ -46,13 +47,20 @@ view model =
   case List.head model of
     Just {squares, xIsNext} ->
       div 
-        []
-        ( List.append 
-            [ renderBoard squares ClickSquare
-            , div [] [text <| getStatus squares xIsNext]
-            ]
-            (renderHistory (List.length model) GoToStep) 
-        )
+        [ styles.body ]
+        [ div
+          [ styles.game ]
+          [ renderBoard squares ClickSquare ]
+        , div
+            [ styles.gameInfo ] 
+            [ div 
+                [ styles.status ]
+                [ text <| getStatus squares xIsNext ]
+            , ul
+                [ styles.ul ]
+                (renderHistory (List.length model) GoToStep)
+            ]    
+        ]
     Nothing ->
       div [] []
 
@@ -77,20 +85,22 @@ onClickSquare index model =
       model
 
 
-
 renderHistory : Int -> (Int -> msg) -> List (Html msg)
 renderHistory steps onClickItem =
-  List.map (historyButton onClickItem) (List.range 0 (steps-1))
+  List.map (historyItem onClickItem) (List.range 0 (steps-1))
 
-historyButton : (Int -> msg) -> Int -> Html msg
-historyButton onClickItem step =
-  button 
+
+historyItem : (Int -> msg) -> Int -> Html msg
+historyItem onClickItem step =
+  li 
     [ onClick (onClickItem step) ] 
     [ text <| "Go to " ++ (if step == 0 then "start" else "step " ++ toString step) ]
+
 
 nextPlayer : Bool -> String
 nextPlayer xIsNext = 
   if xIsNext then "X" else "O"
+
 
 getStatus : Squares -> Bool -> String
 getStatus squares xIsNext =
@@ -103,9 +113,11 @@ getStatus squares xIsNext =
       else 
         "Next player: " ++ nextPlayer xIsNext
 
+
 isGameOver : Squares -> Bool
 isGameOver squares = 
   Array.isEmpty <| Array.filter ((==) Nothing) squares
+
 
 winningLines : List (List Int)
 winningLines =
@@ -118,3 +130,26 @@ winningLines =
   , [ 0, 4, 8 ]
   , [ 2, 4, 6 ]
   ]
+
+
+styles = 
+  { game =
+      style
+        [ ("display", "flex")
+        , ("flex-direction", "row")
+        ]
+  , gameInfo =
+      style 
+        [ ("margin-left", "20px") ]
+  , status =
+      style  
+        [ ("margin-bottom", "10px") ]
+  , body =
+      style
+        [ ("font", "14px Century Gothic, Futura, sans-serif")
+        , ("margin", "20px")
+        ]
+  , ul = 
+      style
+        [ ("padding-left", "30px") ]
+  }
