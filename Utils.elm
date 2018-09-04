@@ -25,4 +25,5 @@ lineWinner line squares =
         Nothing
 
 squaresValueAt : Int -> Squares -> Maybe String 
-squaresValueAt index squares = Maybe.withDefault Nothing (Array.get index squares)
+squaresValueAt index squares = 
+  Maybe.withDefault Nothing (Array.get index squares)

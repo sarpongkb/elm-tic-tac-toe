@@ -1,12 +1,14 @@
-module Game exposing (initialModel, update, view)
+module Game exposing (game)
 
-import Html exposing (Html, div, text, button)
+import Html exposing (Html, div, text, button, beginnerProgram)
 import Html.Events exposing (onClick)
 import Array exposing (Array)
 import Maybe exposing (Maybe)
 
 import Board exposing (renderBoard)
 import Utils exposing (Squares, hasWinner, squaresValueAt)
+
+game = beginnerProgram { model = initialModel, update = update, view = view }
 
 -- MODEL
 type alias StepModel = 
@@ -33,7 +35,10 @@ update msg model =
     ClickSquare index ->
       onClickSquare index model
     GoToStep step ->
-      if step == 0 then initialModel else List.drop (List.length model - step - 1) model
+      if step == 0 then 
+        initialModel 
+      else 
+        List.drop (List.length model - step - 1) model
 
 -- VIEW
 view : Model -> Html Msg
@@ -84,7 +89,8 @@ historyButton onClickItem step =
     [ text <| "Go to " ++ (if step == 0 then "start" else "step " ++ toString step) ]
 
 nextPlayer : Bool -> String
-nextPlayer xIsNext = if xIsNext then "X" else "O"
+nextPlayer xIsNext = 
+  if xIsNext then "X" else "O"
 
 getStatus : Squares -> Bool -> String
 getStatus squares xIsNext =
@@ -92,11 +98,14 @@ getStatus squares xIsNext =
     True  -> 
       "Winner: " ++ nextPlayer (not xIsNext)
     False -> 
-      if isGameOver squares then "Game Over !!!" 
-      else "Next player: " ++ nextPlayer xIsNext
+      if isGameOver squares then 
+        "Game Over !!!" 
+      else 
+        "Next player: " ++ nextPlayer xIsNext
 
 isGameOver : Squares -> Bool
-isGameOver squares = Array.isEmpty <| Array.filter ((==) Nothing) squares
+isGameOver squares = 
+  Array.isEmpty <| Array.filter ((==) Nothing) squares
 
 winningLines : List (List Int)
 winningLines =
