@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "elm-live Main.elm --open"
+  },
+  "devDependencies": {
+    "elm-live": "^2.7.5"
+  }
+}
