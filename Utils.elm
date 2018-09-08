@@ -1,29 +1,29 @@
-module Utils exposing (Squares, hasWinner, squaresValueAt)
+module Utils exposing (hasWinner, squaresValueAt)
 
 import Maybe exposing (Maybe)
 import Array exposing (Array)
 
-type alias Squares = Array (Maybe String)
+import Square exposing (..)
 
-hasWinner : List (List Int) -> Squares -> Bool
+hasWinner : List (List Int) -> Array Square -> Bool
 hasWinner winningLines squares =
   List.map (\line -> lineWinner line squares) winningLines
-    |>  List.any (\winner -> winner /= Nothing)
+    |>  List.any (\winner -> winner /= EmptySquare)
 
 
-lineWinner : List Int -> Squares -> Maybe String
+lineWinner : List Int -> Array Square -> Square
 lineWinner line squares =
   let 
     mappedLine = List.map (\v -> squaresValueAt v squares) line
   in
-    if List.all (\v -> v == Just "X") mappedLine then
-      Just "X"
+    if List.all (\v -> v == X) mappedLine then
+      X
     else
-      if List.all (\v -> v == Just "O") mappedLine then
-        Just "O"
+      if List.all (\v -> v == O) mappedLine then
+        O
       else
-        Nothing
+        EmptySquare
 
-squaresValueAt : Int -> Squares -> Maybe String 
+squaresValueAt : Int -> Array Square -> Square 
 squaresValueAt index squares = 
-  Maybe.withDefault Nothing (Array.get index squares)
+  Maybe.withDefault EmptySquare (Array.get index squares)

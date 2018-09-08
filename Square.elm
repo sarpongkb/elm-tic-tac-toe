@@ -1,18 +1,20 @@
-module Square exposing (renderSquare)
+module Square exposing (..)
 
 import Html exposing (Html, button, text, Attribute)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 
-renderSquare : Maybe String -> msg -> Html msg
-renderSquare value onClickItem =
+-- type MarkedSquare = X | O
+type Square = X | O | EmptySquare
+
+renderSquare : Square -> msg -> Html msg
+renderSquare square onClickItem =
   let 
     displayedValue = 
-      case value of
-        Nothing -> 
-          "" 
-        Just v -> 
-          v
+      case square of
+        EmptySquare -> "" 
+        X -> "X"
+        O -> "O"
   in
     button
       [ styles.square

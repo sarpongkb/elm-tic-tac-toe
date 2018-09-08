@@ -6,23 +6,24 @@ import Html.Attributes exposing (style)
 import Array exposing (Array)
 import Maybe exposing (Maybe)
 
+import Square exposing (..)
 import Board exposing (renderBoard)
-import Utils exposing (Squares, hasWinner, squaresValueAt)
+import Utils exposing (hasWinner, squaresValueAt)
 
 game = beginnerProgram { model = initialModel, update = update, view = view }
 
 -- MODEL
 type alias StepModel = 
-  { squares : Squares
-  , xIsNext : Bool
+  { squares : Array Square
+  , nextSquare : Square
   }
 
 type alias Model = List StepModel
 
 initialModel : Model
 initialModel =
-  [ { squares = Array.initialize 9 (always Nothing)
-    , xIsNext = True
+  [ { squares = Array.initialize 9 (always EmptySquare)
+    , nextSquare = X
     }
   ]
 
@@ -45,7 +46,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   case List.head model of
-    Just {squares, xIsNext} ->
+    Just {squares, nextSquare} ->
       div 
         [ styles.body ]
         [ div
@@ -55,7 +56,7 @@ view model =
             [ styles.gameInfo ] 
             [ div 
                 [ styles.status ]
-                [ text <| getStatus squares xIsNext ]
+                [ text <| getStatus squares nextSquare ]
             , ul
                 [ styles.ul ]
                 (renderHistory (List.length model) GoToStep)
@@ -72,11 +73,11 @@ onClickSquare index model =
   case List.head model of
     Just stepModel ->
       let
-        proceed = not (hasWinner winningLines stepModel.squares) && squaresValueAt index stepModel.squares == Nothing
+        proceed = not (hasWinner winningLines stepModel.squares) && squaresValueAt index stepModel.squares == EmptySquare
       in
         if proceed then
-          { squares = Array.set index (Just <| nextPlayer stepModel.xIsNext) stepModel.squares
-          , xIsNext = if stepModel.xIsNext then False else True
+          { squares = Array.set index stepModel.nextSquare stepModel.squares
+          , nextSquare = if stepModel.nextSquare == X then O else X
           }
           :: model
         else
@@ -97,26 +98,21 @@ historyItem onClickItem step =
     [ text <| "Go to " ++ (if step == 0 then "start" else "step " ++ toString step) ]
 
 
-nextPlayer : Bool -> String
-nextPlayer xIsNext = 
-  if xIsNext then "X" else "O"
-
-
-getStatus : Squares -> Bool -> String
-getStatus squares xIsNext =
+getStatus : Array Square -> Square -> String
+getStatus squares nextSquare =
   case hasWinner winningLines squares of
     True  -> 
-      "Winner: " ++ nextPlayer (not xIsNext)
+      "Winner: " ++ toString (if nextSquare == X then O else X)
     False -> 
       if isGameOver squares then 
         "Game Over !!!" 
       else 
-        "Next player: " ++ nextPlayer xIsNext
+        "Next player: " ++ toString nextSquare
 
 
-isGameOver : Squares -> Bool
+isGameOver : Array Square -> Bool
 isGameOver squares = 
-  Array.isEmpty <| Array.filter ((==) Nothing) squares
+  Array.isEmpty <| Array.filter ((==) EmptySquare) squares
 
 
 winningLines : List (List Int)
