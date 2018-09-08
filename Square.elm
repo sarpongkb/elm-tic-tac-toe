@@ -9,18 +9,11 @@ type Square = X | O | Empty
 
 renderSquare : Square -> msg -> Html msg
 renderSquare square onClickItem =
-  let 
-    displayedValue = 
-      case square of
-        Empty -> "" 
-        X -> "X"
-        O -> "O"
-  in
     button
       [ styles.square
       , onClick onClickItem
       ]
-      [ text displayedValue ]  
+      [ text <| if square == Empty then "" else toString square ]  
 
 styles =
   { square = 
