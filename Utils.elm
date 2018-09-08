@@ -8,7 +8,7 @@ import Square exposing (..)
 hasWinner : List (List Int) -> Array Square -> Bool
 hasWinner winningLines squares =
   List.map (\line -> lineWinner line squares) winningLines
-    |>  List.any (\winner -> winner /= EmptySquare)
+    |>  List.any (\winner -> winner /= Square.Empty)
 
 
 lineWinner : List Int -> Array Square -> Square
@@ -16,14 +16,14 @@ lineWinner line squares =
   let 
     mappedLine = List.map (\v -> squaresValueAt v squares) line
   in
-    if List.all (\v -> v == X) mappedLine then
+    if List.all ((==) Square.X) mappedLine then
       X
     else
-      if List.all (\v -> v == O) mappedLine then
+      if List.all ((==) Square.O) mappedLine then
         O
       else
-        EmptySquare
+        Square.Empty
 
 squaresValueAt : Int -> Array Square -> Square 
 squaresValueAt index squares = 
-  Maybe.withDefault EmptySquare (Array.get index squares)
+  Maybe.withDefault Square.Empty (Array.get index squares)

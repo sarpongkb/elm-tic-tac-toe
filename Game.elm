@@ -22,7 +22,7 @@ type alias Model = List StepModel
 
 initialModel : Model
 initialModel =
-  [ { squares = Array.initialize 9 (always EmptySquare)
+  [ { squares = Array.initialize 9 (always Square.Empty)
     , nextSquare = X
     }
   ]
@@ -73,7 +73,7 @@ onClickSquare index model =
   case List.head model of
     Just stepModel ->
       let
-        proceed = not (hasWinner winningLines stepModel.squares) && squaresValueAt index stepModel.squares == EmptySquare
+        proceed = not (hasWinner winningLines stepModel.squares) && squaresValueAt index stepModel.squares == Square.Empty
       in
         if proceed then
           { squares = Array.set index stepModel.nextSquare stepModel.squares
@@ -112,7 +112,7 @@ getStatus squares nextSquare =
 
 isGameOver : Array Square -> Bool
 isGameOver squares = 
-  Array.isEmpty <| Array.filter ((==) EmptySquare) squares
+  Array.isEmpty <| Array.filter ((==) Square.Empty) squares
 
 
 winningLines : List (List Int)

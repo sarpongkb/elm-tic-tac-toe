@@ -5,14 +5,14 @@ import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 
 -- type MarkedSquare = X | O
-type Square = X | O | EmptySquare
+type Square = X | O | Empty
 
 renderSquare : Square -> msg -> Html msg
 renderSquare square onClickItem =
   let 
     displayedValue = 
       case square of
-        EmptySquare -> "" 
+        Empty -> "" 
         X -> "X"
         O -> "O"
   in

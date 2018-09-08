@@ -42,4 +42,4 @@ boardRowStyle =
 
 squareAt : Int -> Array Square -> Square
 squareAt index squares =
-  Maybe.withDefault EmptySquare (Array.get index squares)
+  Maybe.withDefault Square.Empty (Array.get index squares)
