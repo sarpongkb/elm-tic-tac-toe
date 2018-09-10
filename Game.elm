@@ -73,7 +73,8 @@ onClickSquare index model =
   case List.head model of
     Just stepModel ->
       let
-        proceed = not (hasWinner winningLines stepModel.squares) && squaresValueAt index stepModel.squares == Square.Empty
+        (won, _)  = hasWinner winningLines stepModel.squares
+        proceed = not won && squaresValueAt index stepModel.squares == Square.Empty
       in
         if proceed then
           { squares = Array.set index stepModel.nextSquare stepModel.squares
@@ -101,9 +102,9 @@ historyItem onClickItem step =
 getStatus : Array Square -> Square -> String
 getStatus squares nextSquare =
   case hasWinner winningLines squares of
-    True  -> 
-      "Winner: " ++ toString (if nextSquare == X then O else X)
-    False -> 
+    (True, winner)  -> 
+      "Winner: " ++ toString winner
+    (False, _) -> 
       if isGameOver squares then 
         "Game Over !!!" 
       else 

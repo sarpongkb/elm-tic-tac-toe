@@ -5,24 +5,26 @@ import Array exposing (Array)
 
 import Square exposing (..)
 
-hasWinner : List (List Int) -> Array Square -> Bool
+hasWinner : List (List Int) -> Array Square -> (Bool, Square)
 hasWinner winningLines squares =
   List.map (\line -> lineWinner line squares) winningLines
-    |>  List.any (\winner -> winner /= Square.Empty)
+    |> List.filter (\(hw, sq) -> hw == True)
+    |> List.head
+    |> Maybe.withDefault (False, Square.Empty)
 
 
-lineWinner : List Int -> Array Square -> Square
+lineWinner : List Int -> Array Square -> (Bool, Square)
 lineWinner line squares =
   let 
     mappedLine = List.map (\v -> squaresValueAt v squares) line
   in
     if List.all ((==) Square.X) mappedLine then
-      X
+      (True, X)
     else
       if List.all ((==) Square.O) mappedLine then
-        O
+        (True, O)
       else
-        Square.Empty
+        (False, Square.Empty)
 
 squaresValueAt : Int -> Array Square -> Square 
 squaresValueAt index squares = 
