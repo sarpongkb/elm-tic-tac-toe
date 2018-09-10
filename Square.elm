@@ -4,16 +4,22 @@ import Html exposing (Html, button, text, Attribute)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 
--- type MarkedSquare = X | O
-type Square = X | O | Empty
+type Mark = X | O
+type Square = Marked Mark | Empty
 
 renderSquare : Square -> msg -> Html msg
 renderSquare square onClickItem =
-    button
-      [ styles.square
-      , onClick onClickItem
-      ]
-      [ text <| if square == Empty then "" else toString square ]  
+  button
+    [ styles.square
+    , onClick onClickItem
+    ]
+    [ text <| displayMark square ]  
+
+displayMark: Square -> String
+displayMark square =
+  case square of
+    Empty -> ""
+    Marked mark -> toString mark
 
 styles =
   { square = 

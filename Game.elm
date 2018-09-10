@@ -15,7 +15,7 @@ game = beginnerProgram { model = initialModel, update = update, view = view }
 -- MODEL
 type alias StepModel = 
   { squares : Array Square
-  , nextSquare : Square
+  , nextMark : Square.Mark
   }
 
 type alias Model = List StepModel
@@ -23,7 +23,7 @@ type alias Model = List StepModel
 initialModel : Model
 initialModel =
   [ { squares = Array.initialize 9 (always Square.Empty)
-    , nextSquare = X
+    , nextMark = Square.X
     }
   ]
 
@@ -46,7 +46,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
   case List.head model of
-    Just {squares, nextSquare} ->
+    Just {squares, nextMark} ->
       div 
         [ styles.body ]
         [ div
@@ -56,7 +56,7 @@ view model =
             [ styles.gameInfo ] 
             [ div 
                 [ styles.status ]
-                [ text <| getStatus squares nextSquare ]
+                [ text <| getStatus squares nextMark ]
             , ul
                 [ styles.ul ]
                 (renderHistory (List.length model) GoToStep)
@@ -77,8 +77,8 @@ onClickSquare index model =
         proceed = not won && squaresValueAt index stepModel.squares == Square.Empty
       in
         if proceed then
-          { squares = Array.set index stepModel.nextSquare stepModel.squares
-          , nextSquare = if stepModel.nextSquare == X then O else X
+          { squares = Array.set index (Square.Marked stepModel.nextMark) stepModel.squares
+          , nextMark = if stepModel.nextMark == Square.X then Square.O else Square.X
           }
           :: model
         else
@@ -99,16 +99,16 @@ historyItem onClickItem step =
     [ text <| "Go to " ++ (if step == 0 then "start" else "step " ++ toString step) ]
 
 
-getStatus : Array Square -> Square -> String
-getStatus squares nextSquare =
+getStatus : Array Square -> Square.Mark -> String
+getStatus squares nextMark =
   case hasWinner winningLines squares of
     (True, winner)  -> 
-      "Winner: " ++ toString winner
+      "Winner: " ++ Square.displayMark winner
     (False, _) -> 
       if isGameOver squares then 
         "Game Over !!!" 
       else 
-        "Next player: " ++ toString nextSquare
+        "Next player: " ++ toString nextMark
 
 
 isGameOver : Array Square -> Bool

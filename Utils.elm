@@ -18,11 +18,11 @@ lineWinner line squares =
   let 
     mappedLine = List.map (\v -> squaresValueAt v squares) line
   in
-    if List.all ((==) Square.X) mappedLine then
-      (True, X)
+    if List.all ((==) (Square.Marked X)) mappedLine then
+      (True, Square.Marked X)
     else
-      if List.all ((==) Square.O) mappedLine then
-        (True, O)
+      if List.all ((==) (Square.Marked O)) mappedLine then
+        (True, Square.Marked O)
       else
         (False, Square.Empty)
 
